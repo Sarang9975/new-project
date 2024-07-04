@@ -19,6 +19,7 @@ import Mission from "../components/Mission";
 import Upgrade from "../components/Upgrade";
 import Referral from "../components/Referral";
 import Roadmap from "../components/Roadmap";
+import AuthCallback from "../components/AuthCallback";
 const router =createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<Layout/>}>
@@ -28,6 +29,7 @@ const router =createBrowserRouter(
       <Route path="upgrade" element={<Upgrade/>} />
       <Route path="referral" element={<Referral/>}/>
       <Route path="roadmap" element={<Roadmap/>}/>
+      <Route path="/auth/callback" element={<AuthCallback/>} />
       
       
       

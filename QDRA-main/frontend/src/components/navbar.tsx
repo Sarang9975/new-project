@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from 'react-router-dom';
-
+import './Navbar.css'
 const Navbar: React.FC = () => {
   const { loginWithRedirect, logout, isAuthenticated, isLoading } = useAuth0();
   const navigate = useNavigate();
@@ -30,7 +30,7 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <div className="border-solid-black flex flex-wrap items-center justify-between bg-white w-full h-20 p-2">
+    <div className=" main border-solid-black rounded-md flex flex-wrap items-center justify-between bg-[#FFF5E1] w-full h-20 p-2">
       <div className="flex items-center">
         <img
           className="h-16 w-20"

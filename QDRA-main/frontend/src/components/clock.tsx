@@ -1,59 +1,95 @@
 import React, { useState, useEffect } from 'react';
+import axiosInstance from '../client/axiosConfig';
 import { useAuth0 } from '@auth0/auth0-react';
+import { coin } from '../images/index.js';
+import './clock.css';
+import AuthCallback from './AuthCallback';
 
-const Clock = () => {
-  const [timer, setTimer] = useState(0);
-  const { user, isAuthenticated } = useAuth0(); // Use the Auth0 hook
+const Clock: React.FC = () => {
+  const { getAccessTokenSilently } = useAuth0();
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [isActive, setIsActive] = useState(false);
+  const [points, setPoints] = useState(0);
+  const pointsToAdd = 12;
+  const coinReward = 15000;
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTimer(prev => prev + 1);
-    }, 1000);
+    let countdown: NodeJS.Timeout | undefined;
+    if (isActive && timeLeft > 0) {
+      countdown = setInterval(() => {
+        setTimeLeft(prev => prev - 1);
+      }, 1000);
+    } else if (timeLeft === 0 && isActive) {
+      clearInterval(countdown);
+      setIsActive(false);
+      handleTimerCompletion();
+    }
+    return () => clearInterval(countdown);
+  }, [isActive, timeLeft]);
 
-    return () => clearInterval(interval);
-  }, []);
+  const startTimer = () => {
+    setTimeLeft(10); // 3 hours in seconds
+    setIsActive(true);
+  };
 
   const handleTimerCompletion = async () => {
+
     try {
-      if (!isAuthenticated || !user) {
-        console.error('User is not authenticated');
-        return;
-      }
-
-      const userId = user.sub; // Get the Auth0 user ID from the authenticated user
-
-      const response = await fetch('http://localhost:3000/api/updateCoins', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          coins: 10,
-          userId: userId,
-        }),
+      const token = await getAccessTokenSilently();
+      
+      const response = await axiosInstance.post('/api/updateCoins', { coins: coinReward }, {
+        headers: { Authorization: `Bearer ${token}` }
       });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('Coins updated:', data);
+      setPoints(response.data.updatedPoints);
     } catch (error) {
       console.error('Error updating coins:', error);
     }
   };
 
-  useEffect(() => {
-    if (timer >= 60) { // For example, when the timer reaches 60 seconds
-      handleTimerCompletion();
-      setTimer(0); // Reset the timer if you want to perform the action every 60 seconds
-    }
-  }, [timer]);
+  const handleClick = () => {
+    setPoints(prev => prev + pointsToAdd);
+  };
+
+  const hours = Math.floor((timeLeft % 86400) / 3600);
+  const minutes = Math.floor((timeLeft % 3600) / 60);
+  const seconds = timeLeft % 60;
 
   return (
     <div>
-      <h1>Timer: {timer}</h1>
+      <AuthCallback/>
+      {/* <div className="clock bg-black">
+      <div className='bg-blue-600'>
+        <AuthCallback/>
+      </div>
+      <div className="flex coin_wallet absolute top-0 w-full px-3 pt-20 z-10 flex-col items-center text-white">
+        <div className="flex py-auto align-top justify-center coin_system">
+          <div className="mt-12 text-5xl font-bold flex items-center">
+            <img src={coin} width={44} height={44} alt="coin" />
+            <span className="ml-2 text-md">{points}</span>
+          </div>
+          <div className="flex flex-col justify-end top-7 relative right-20 items-center text-center">
+            <h1 className="text-sm align-middle font-semibold">QDRA Wallet</h1>
+          </div>
+        </div>
+      </div>
+      <div className="clock-container">
+        <section className="countdown-container">
+          <div className="hours-container">
+            <div className="hours">{hours}</div>
+            <div className="hours-label">hours</div>
+          </div>
+          <div className="minutes-container">
+            <div className="minutes">{minutes}</div>
+            <div className="minutes-label">minutes</div>
+          </div>
+          <div className="seconds-container">
+            <div className="seconds">{seconds < 10 ? `0${seconds}` : seconds}</div>
+            <div className="seconds-label">seconds</div>
+          </div>
+        </section>
+        <button onClick={startTimer} className="start-button">Start</button>
+      </div>
+    </div> */}
     </div>
   );
 };
