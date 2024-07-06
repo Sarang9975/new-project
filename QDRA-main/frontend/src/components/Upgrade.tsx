@@ -22,12 +22,15 @@ const Upgrade = () => {
             Free
             <span className="small text-xs md:text-sm">/per month</span>
           </p>
-          <p>Free Forever</p>
+          <p className='text-[40px] font-semibold'>Free Forever</p>
           <hr className="my-6 md:my-8" />
           <ul className="features space-y-2">
-            <li>One account</li>
-            <li>Unlimited songs</li>
-            <li>Customized playlist</li>
+         
+            <li> At level 1 cost 10k coins gives 7500 + default value.</li>
+            <li>At level 2 cost 15k coins gives 12500 + value after level 1.
+            </li>
+            <li>At level 3 cost 20k coins gives  18000+ value after level 2.
+            </li>
           </ul>
           <button 
             onClick={handlePurchase}
@@ -43,11 +46,16 @@ const Upgrade = () => {
             <span className="small text-xs md:text-sm">/per month</span>
           </p>
           <p>Save $24</p>
+          <h1 className='text-white font-semi-bold text-[40px]'>Pro</h1>
           <hr className="my-6 md:my-8" />
           <ul className="features space-y-2">
-            <li>Six accounts</li>
-            <li>Unlimited songs</li>
-            <li>Customized playlist</li>
+       
+            <li>Level 1
+            Costs 2 dollar gets 40k+default value.</li>
+            <li>Level 2
+            Costs 4 dollar gets 90k+default value. </li>
+            <li>level 3
+            Costs 7 dollar gets 150k+default value.</li>
           </ul>
           <button 
             onClick={handlePurchase}

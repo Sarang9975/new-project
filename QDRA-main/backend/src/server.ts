@@ -1,12 +1,13 @@
 import express from 'express';
 import mongoose from 'mongoose';
-
-import User from './models/User';
+import { expressjwt } from 'express-jwt'; // Adjusted import
+import jwksRsa from 'jwks-rsa';
 import cors from 'cors';
+import User from './models/User';
+
 const app = express();
 app.use(express.json());
 app.use(cors());
-
 
 mongoose.connect('mongodb://localhost:27017/qdra', {
  
@@ -16,9 +17,23 @@ mongoose.connect('mongodb://localhost:27017/qdra', {
   console.error('Error connecting to MongoDB:', err);
 });
 
-app.post('/api/updateCoins', async (req, res) => {
+// Middleware to validate JWT
+const checkJwt = expressjwt({
+  secret: jwksRsa.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: 'https://dev-gxhcmoclz7dkosmc.us.auth0.com/.well-known/jwks.json',
+  }) as any,
+  audience: 'https://dev-gxhcmoclz7dkosmc.us.auth0.com/api/v2/',
+  issuer: 'https://dev-gxhcmoclz7dkosmc.us.auth0.com/',
+  algorithms: ['RS256'],
+});
+
+app.post('/api/updateCoins', checkJwt, async (req, res) => {
   try {
-    const { coins, userId } = req.body;
+    const { coins } = req.body;
+    const userId = (req as any).auth?.sub; // Extract user ID from JWT token
 
     const user = await User.findOne({ auth0Id: userId });
 
@@ -36,7 +51,7 @@ app.post('/api/updateCoins', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000; // Ensure this matches the port your frontend expects
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
