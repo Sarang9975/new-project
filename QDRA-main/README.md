@@ -1,6 +1,7 @@
 # For Backend -
 ## To run the server
 ### cd backend
+### tsc
 ### npm start
 
 # For frontend -
