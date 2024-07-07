@@ -5,9 +5,7 @@ import ReactDOM from "react-dom/client";
 
 import { createRoot } from 'react-dom/client';
 import { Auth0Provider } from '@auth0/auth0-react';
-import App from "./App";
-import Navbar from "../components/navbar";
-import Footer from "../components/footer";
+
 
 import { createBrowserRouter, createRoutesFromElements, Route, BrowserRouter as Router, RouterProvider } from 'react-router-dom';
 import Layout from "./Layout";
@@ -20,11 +18,16 @@ import Upgrade from "../components/Upgrade";
 import Referral from "../components/Referral";
 import Roadmap from "../components/Roadmap";
 import AuthCallback from "../components/AuthCallback";
+import Login from "../components/Login";
+import Register from "../components/Register";
 const router =createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<Layout/>}>
       <Route path="" element={<BodySection/>}/>
       <Route path="home" element={<Home/>}/>
+      <Route path="login" element= {<Login/>}/>
+      <Route path="register" element= {<Register/>}/>
+
       <Route path="mission" element={<Mission/>}/>
       <Route path="upgrade" element={<Upgrade/>} />
       <Route path="referral" element={<Referral/>}/>
@@ -41,16 +44,9 @@ const router =createBrowserRouter(
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-   
-    <Auth0Provider
-    domain="dev-gxhcmoclz7dkosmc.us.auth0.com"
-    clientId="mdG41OhrlAdXSoTvXi6sMUAHg58IKBnB"
-    authorizationParams={{
-      redirect_uri: window.location.href
-    }}
-  >
+  
      <RouterProvider router={router}/>
-  </Auth0Provider>
+ 
  
    
   </React.StrictMode>,

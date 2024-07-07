@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useAuth0 } from '@auth0/auth0-react';
 import { coin } from '../images/index.js';
 import './clock.css';
 
 const Clock: React.FC = () => {
-  const { getAccessTokenSilently } = useAuth0();
   const [timeLeft, setTimeLeft] = useState(0);
   const [isActive, setIsActive] = useState(false);
   const [points, setPoints] = useState(0);
@@ -33,8 +31,8 @@ const Clock: React.FC = () => {
 
   const handleTimerCompletion = async (coins: number) => {
     try {
-      const token = await getAccessTokenSilently();
-      const response = await axios.post('http://localhost:3000/api/updateCoins', {
+      const token = await fetchToken(); // Fetch JWT token
+      const response = await axios.post('http://localhost:5000/api/updateCoins', {
         coins
       }, {
         headers: {
@@ -45,6 +43,15 @@ const Clock: React.FC = () => {
     } catch (error) {
       console.error('Error updating coins:', error);
     }
+  };
+
+  const fetchToken = async () => {
+    // Implement your token fetching logic here, e.g., from localStorage
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('No JWT token found');
+    }
+    return token;
   };
 
   const handleClick = () => {

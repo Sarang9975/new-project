@@ -1,57 +1,50 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
-import { expressjwt } from 'express-jwt'; // Adjusted import
-import jwksRsa from 'jwks-rsa';
+import dotenv from 'dotenv';
+import bodyParser from 'body-parser';
 import cors from 'cors';
-import User from './models/User';
+
+import authRoutes from './routes/auth'; // Adjust the path as necessary
+import { authenticateToken, AuthRequest } from './middleware/authMiddleware'; // Adjust the path as necessary
+import UserModel from './models/User'; // Adjust the path as necessary
+
+dotenv.config();
 
 const app = express();
-app.use(express.json());
+const port = process.env.PORT || 5000;
+
+// Middleware
 app.use(cors());
+app.use(bodyParser.json());
 
-mongoose.connect('mongodb://localhost:27017/qdra', {
- 
-}).then(() => {
-  console.log('Connected to MongoDB');
-}).catch(err => {
-  console.error('Error connecting to MongoDB:', err);
+// Connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI!, {
+  
+})
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((error) => console.error('Error connecting to MongoDB:', error));
+
+// Define a route to get user info
+app.use('/api/auth', authRoutes); // Example for authentication routes
+app.get('/api/user', authenticateToken, (req, res) => {
+  // Handle user endpoint with authentication middleware
+  res.send('User information');
 });
 
-// Middleware to validate JWT
-const checkJwt = expressjwt({
-  secret: jwksRsa.expressJwtSecret({
-    cache: true,
-    rateLimit: true,
-    jwksRequestsPerMinute: 5,
-    jwksUri: 'https://dev-gxhcmoclz7dkosmc.us.auth0.com/.well-known/jwks.json',
-  }) as any,
-  audience: 'https://dev-gxhcmoclz7dkosmc.us.auth0.com/api/v2/',
-  issuer: 'https://dev-gxhcmoclz7dkosmc.us.auth0.com/',
-  algorithms: ['RS256'],
+// Routes
+app.use('/api/auth', authRoutes);
+
+// Basic route to check if the server is running
+app.get('/', (req, res) => {
+  res.send('Server is running');
 });
 
-app.post('/api/updateCoins', checkJwt, async (req, res) => {
-  try {
-    const { coins } = req.body;
-    const userId = (req as any).auth?.sub; // Extract user ID from JWT token
-
-    const user = await User.findOne({ auth0Id: userId });
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    user.points += coins;
-    await user.save();
-
-    res.json({ updatedPoints: user.points });
-  } catch (error) {
-    console.error('Error updating coins:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
+// Error handling middleware
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
